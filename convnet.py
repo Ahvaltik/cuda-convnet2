@@ -22,7 +22,7 @@ from python_util.gpumodel import *
 import sys
 import math as m
 import layer as lay
-from convdata import ImageDataProvider, CIFARDataProvider, DummyConvNetLogRegDataProvider
+from convdata import ImageDataProvider, CIFARDataProvider, DummyConvNetLogRegDataProvider, MNISTDataProvider, BIWIDataProvider
 from os import linesep as NL
 import copy as cp
 import os
@@ -276,6 +276,8 @@ class ConvNet(IGPUModel):
         DataProvider.register_data_provider('dummy-lr-n', 'Dummy ConvNet logistic regression', DummyConvNetLogRegDataProvider)
         DataProvider.register_data_provider('image', 'JPEG-encoded image data provider', ImageDataProvider)
         DataProvider.register_data_provider('cifar', 'CIFAR-10 data provider', CIFARDataProvider)
+        DataProvider.register_data_provider('MNIST', 'MNIST data provider', MNISTDataProvider)
+        DataProvider.register_data_provider('BIWI', 'BIWI data provider', BIWIDataProvider)
   
         return op
 

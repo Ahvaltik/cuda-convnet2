@@ -26,6 +26,7 @@ import platform
 from os import linesep as NL
 from threading import Thread
 import tempfile as tf
+import timeit
 
 class ModelStateException(Exception):
     pass
@@ -148,6 +149,8 @@ class IGPUModel:
         print "Saving checkpoints to %s" % self.save_file
         print "========================="
         next_data = self.get_next_batch()
+        f = file('cuda_convnet_bm_1.txt', 'w')
+        start_time = timeit.default_timer()
         while self.epoch <= self.num_epochs:
             data = next_data
             self.epoch, self.batchnum = data[0], data[1]
@@ -170,8 +173,13 @@ class IGPUModel:
                 self.print_test_results()
                 self.print_test_status()
                 self.conditional_save()
-            
-            self.print_elapsed_time(time() - compute_time_py)
+
+                self.print_elapsed_time(time() - compute_time_py)
+                f.write('{0}\t{1}\t{2}\n'.format(str(self.epoch), str(self.test_outputs[-1][0]['logprob'][1]),
+                                                 str(timeit.default_timer() - start_time)))
+
+        f.flush()
+        f.close()
     
     def cleanup(self):
         if self.checkpoint_writer is not None:

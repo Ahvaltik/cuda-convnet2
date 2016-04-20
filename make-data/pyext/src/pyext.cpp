@@ -119,9 +119,9 @@ void DecoderThread::makeJPEG(int idx) {
         int crop_start_y = (new_height - _target_size) / 2;
         cv::Rect cropRect(crop_start_x, crop_start_y, _target_size, _target_size);
         cv::Mat cropped_mat_buffer = _resized_mat_buffer(cropRect);
-        cv::imencode(".jpg", cropped_mat_buffer, _output_jpeg_buffer, _encode_params);
+        cv::imencode(".jpeg", cropped_mat_buffer, _output_jpeg_buffer, _encode_params);
     } else {
-        cv::imencode(".jpg", _resized_mat_buffer, _output_jpeg_buffer, _encode_params);
+        cv::imencode(".jpeg", _resized_mat_buffer, _output_jpeg_buffer, _encode_params);
     }
 
     char* output_jpeg_buffer_ptr = reinterpret_cast<char*>(&_output_jpeg_buffer[0]);

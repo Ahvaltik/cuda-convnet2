@@ -184,10 +184,54 @@ class LabeledDummyDataProvider(DummyDataProvider):
 #        print data.shape, labels.shape
         return self.curr_epoch, self.curr_batchnum, [data.T, labels.T ]
 
-    
-dp_types = {"dummy-n": "Dummy data provider for n-dimensional data",
+
+class MemoryDataProvider(DataProvider):
+    def __init__(self, data_dir, batch_range, init_epoch=1, init_batchnum=None, dp_params=None, test=False):
+        DataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
+        self.data_dic = []
+        for i in self.batch_range:
+            self.data_dic += [self.get_batch(i)]
+
+    def get_next_batch(self):
+        epoch, batchnum = self.curr_epoch, self.curr_batchnum
+        self.advance_batch()
+
+        return epoch, batchnum, self.data_dic[batchnum - self.batch_range[0]]
+
+
+class LabeledDataProvider(DataProvider):
+    def __init__(self, data_dir, batch_range=None, init_epoch=1, init_batchnum=None, dp_params={}, test=False):
+        DataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
+
+    def get_num_classes(self):
+        return len(self.batch_meta['label_names'])
+
+
+class LabeledMemoryDataProvider(LabeledDataProvider):
+    def __init__(self, data_dir, batch_range, init_epoch=1, init_batchnum=None, dp_params={}, test=False):
+        LabeledDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
+        self.data_dic = []
+        for i in batch_range:
+            self.data_dic += [unpickle(self.get_data_file_name(i))]
+            self.data_dic[-1]["labels"] = n.c_[n.require(self.data_dic[-1]['labels'], dtype=n.single)]
+
+    def get_next_batch(self):
+        epoch, batchnum = self.curr_epoch, self.curr_batchnum
+        self.advance_batch()
+        bidx = batchnum - self.batch_range[0]
+        return epoch, batchnum, self.data_dic[bidx]
+
+dp_types = {"default": "The default data provider; loads one batch into memory at a time",
+            "memory": "Loads the entire dataset into memory",
+            "labeled": "Returns data and labels (used by classifiers)",
+            "labeled-memory": "Combination labeled + memory",
+            "dummy-n": "Dummy data provider for n-dimensional data",
             "dummy-labeled-n": "Labeled dummy data provider for n-dimensional data"}
-dp_classes = {"dummy-n": DummyDataProvider,
+dp_classes = {"default": DataProvider,
+              "memory": MemoryDataProvider,
+              "labeled": LabeledDataProvider,
+              "labeled-memory": LabeledMemoryDataProvider,
+              "dummy-n": DummyDataProvider,
               "dummy-labeled-n": LabeledDummyDataProvider}
     
 class DataProviderException(Exception):
