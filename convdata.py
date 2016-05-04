@@ -354,65 +354,6 @@ class MNISTDataProvider(LabeledMemoryDataProvider):
             dtype=n.single)
 
 
-# class BIWIDataProvider(LabeledMemoryDataProvider):
-#     def __init__(self, data_dir, batch_range=None, init_epoch=1, init_batchnum=None, dp_params=None, test=False):
-#         LabeledDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
-#         self.img_size = 32
-#         self.num_colors = 1
-#         # self.inner_size = dp_params['inner_size'] if dp_params['inner_size'] > 0 else self.batch_meta['img_size']
-#         # self.border_size = (self.img_size - self.inner_size) / 2
-#         # self.border_size = 0
-#         # self.multiview = dp_params['multiview_test'] and test
-#         # self.num_views = 9
-#         # self.scalar_mean = dp_params['scalar_mean']
-#         # self.data_mult = self.num_views if self.multiview else 1
-#         self.data_dic = []
-#         for i in batch_range:
-#             self.data_dic.append(unpickle(self.get_data_file_name(i)))
-#             self.data_dic[-1]['labels'] = n.require(self.data_dic[-1]['labels'].reshape((1, d['data'].shape[1])), dtype=n.single, requirements='C')
-#             # self.data_dic[-1]["labels"] = n.require(
-#             #     n.tile(self.data_dic[-1]["labels"].reshape((1, n.prod(self.data_dic[-1]["labels"].shape))),
-#             #            (1, self.data_mult)), requirements='C')
-#             self.data_dic[-1]['data'] = n.require(self.data_dic[-1]['data'], dtype=n.single,
-#                                                   requirements='C')
-#             # samples = self.data_dic[-1]['data'].size / (self.num_colors * self.img_size ** 2)
-#             # self.data_dic[-1]['data'] = self.data_dic[-1]['data'].reshape((self.num_colors, self.img_size, self.img_size, samples))
-#             print self.data_dic[-1]['data'].shape
-#         #
-#         # self.cropped_data = [
-#         #     n.zeros((self.get_data_dims(), self.data_dic[0]['data'].shape[1] * self.data_mult), dtype=n.single) for x in
-#         #     xrange(2)]
-#
-#         # self.batches_generated = 0
-#         # self.data_mean = self.batch_meta['data_mean'].reshape((self.num_colors, self.img_size, self.img_size))[:,
-#         #                  self.border_size:self.border_size + self.inner_size,
-#         #                  self.border_size:self.border_size + self.inner_size].reshape((self.get_data_dims(), 1))
-#
-#     def get_next_batch(self):
-#         epoch, batchnum = self.curr_epoch, self.curr_batchnum
-#         self.advance_batch()
-#         bidx = batchnum - self.batch_range[0]
-#         #
-#         # cropped = self.cropped_data[self.batches_generated % 2]
-#         #
-#         # cropped -= self.data_mean
-#         # self.batches_generated += 1
-#         return epoch, batchnum, [self.data_dic[bidx]['data'], self.data_dic[bidx]['labels']]
-#
-#     def get_data_dims(self, idx=0):
-#         return self.img_size ** 2 * self.num_colors if idx == 0 else 1
-#         # return self.num_colors if idx == 0 else 1
-#
-#     # Takes as input an array returned by get_next_batch
-#     # Returns a (numCases, imgSize, imgSize, 3) array which can be
-#     # fed to pylab for plotting.
-#     # This is used by shownet.py to plot test case predictions.
-#     def get_plottable_data(self, data):
-#         return n.require(
-#             (data + self.data_mean).T.reshape(data.shape[1], 3, self.img_size, self.img_size).swapaxes(1,
-#                                                                                                            3).swapaxes(
-#                 1, 2) / 255.0, dtype=n.single)
-
 class BIWIDataProvider(LabeledMemoryDataProvider):
     def __init__(self, data_dir, batch_range, init_epoch=1, init_batchnum=None, dp_params={}, test=False):
         LabeledMemoryDataProvider.__init__(self, data_dir, batch_range, init_epoch, init_batchnum, dp_params, test)
@@ -441,7 +382,7 @@ class BIWIDataProvider(LabeledMemoryDataProvider):
     # This is used by shownet.py to plot test case predictions.
     def get_plottable_data(self, data):
         return n.require(
-            data.T.reshape(data.shape[1], 3, self.img_size, self.img_size).swapaxes(1, 3).swapaxes(1,
-            2) / 255.0,
+            data.T.reshape(data.shape[1], 1, self.img_size, self.img_size).swapaxes(1, 3).swapaxes(1,
+            2),
             dtype=n.single)
 
